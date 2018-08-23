@@ -1,70 +1,69 @@
-const assert = require('assert');
-const Buffer = require('safe-buffer').Buffer;
-const BN = require('bn.js');
+const assert = require('assert')
+const Buffer = require('safe-buffer').Buffer
+const BN = require('bn.js')
 
-const JAVA_LONG_MAX = new BN("9223372036854775807");
-const MASK = new BN("4294967295");
-const INT_MASK = MASK;
-const SHORT_MASK = new BN("0xFFFF", 16);
+const JAVA_LONG_MAX = new BN('9223372036854775807')
+const MASK = new BN('4294967295')
+const INT_MASK = MASK
 
-//*--- AION LONG ---*/
+//* --- AION LONG --- */
 
 function AionLong (n) {
-  "use strict"
+  'use strict'
 
-  const _this = this;
+  const _this = this
 
   if (!(_this instanceof AionLong)) {
     // allow constructor call without new
-    return new AionLong(n);
+    return new AionLong(n)
   }
 
-  if (n === null || typeof n === "undefined" || !('toArray' in n)) {
-    throw new Error("unsupported input type");
+  if (n === null || typeof n === 'undefined' || !('toArray' in n)) {
+    throw new Error('unsupported input type')
   }
 
   if (new BN(n.toArray()).cmp(JAVA_LONG_MAX) > 0) {
-    throw new Error("violated upper bound");
+    throw new Error('violated upper bound')
   }
 
-  this.buf = n.toArray();
+  this.buf = n.toArray()
 }
 
-AionLong.prototype._aionLong = true;
+AionLong.prototype._aionLong = true
 
 AionLong.prototype.toArray = function() {
-  return this.buf;
+  return this.buf
 }
 
 AionLong.isAionLong = (a) => {
   if (a instanceof AionLong) {
-    return true;
+    return true
   }
 
   return a !== null &&
   typeof a === 'object' &&
-  a._aionLong === true;
+  a._aionLong === true
 }
 
 AionLong._aionEncodeLong = (bn) => {
-  const top = bn.shrn(32).and(MASK);
-  const bottom = bn.and(MASK);
-  const buf = Buffer.alloc(8);
-  buf.writeUInt32BE(top.toNumber(), 0);
-  buf.writeUInt32BE(bottom.toNumber(), 4);
-  return buf;
+  const top = bn.shrn(32).and(MASK)
+  const bottom = bn.and(MASK)
+  const buf = Buffer.alloc(8)
+  buf.writeUInt32BE(top.toNumber(), 0)
+  buf.writeUInt32BE(bottom.toNumber(), 4)
+  return buf
 }
 
 AionLong.aionEncodeLong = (aionLong) => {
-  const bn = new BN(aionLong.buf);
-  if (bn.and(INT_MASK).cmp(bn) == 0) {
-    return Buffer.from(bn.toArray());
+  const bn = new BN(aionLong.buf)
+  if (bn.and(INT_MASK).cmp(bn) === 0) {
+    return Buffer.from(bn.toArray())
   }
   // otherwise this must be a long
-  return AionLong._aionEncodeLong(bn);
+  return AionLong._aionEncodeLong(bn)
 }
 
-exports.AionLong = AionLong;
+exports.AionLong = AionLong
 
 /**
  * RLP Encoding based on: https://github.com/ethereum/wiki/wiki/%5BEnglish%5D-RLP
@@ -278,7 +277,7 @@ function toBuffer (v) {
         v = Buffer.from(v)
       }
     } else if (AionLong.isAionLong(v)) {
-      v = AionLong.aionEncodeLong(v);
+      v = AionLong.aionEncodeLong(v)
     } else if (typeof v === 'number') {
       if (!v) {
         v = Buffer.from([])

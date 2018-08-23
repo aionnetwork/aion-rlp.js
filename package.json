@@ -10,8 +10,7 @@
     "coverage": "istanbul cover _mocha",
     "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
     "lint": "standard",
-    "test": "istanbul test mocha -- --reporter spec",
-    "webtest": "browserify test/max.js | testling -u"
+    "test": "istanbul test mocha -- --reporter spec"
   },
   "repository": {
     "type": "git",
