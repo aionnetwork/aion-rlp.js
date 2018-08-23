@@ -1,7 +1,6 @@
 const assert = require('assert')
 const RLP = require('../index.js')
 const BN = require('bn.js')
-const testing = require('ethereumjs-testing')
 
 describe('invalid rlps', function () {
   it('should not crash on an invalid rlp', function () {
@@ -266,24 +265,5 @@ describe('hex prefix', function () {
     var a = RLP.encode('0x88f')
     var b = RLP.encode('88f')
     assert.notEqual(a.toString('hex'), b.toString('hex'))
-  })
-})
-
-describe('offical tests', function () {
-  it('pass all tests', function (done) {
-    const officalTests = testing.getSingleFile('RLPTests/rlptest.json')
-
-    for (var test in officalTests) {
-      var incoming = officalTests[test].in
-      // if we are testing a big number
-      if (incoming[0] === '#') {
-        var bn = new BN(incoming.slice(1))
-        incoming = Buffer.from(bn.toArray())
-      }
-
-      var encoded = RLP.encode(incoming)
-      assert.equal(encoded.toString('hex'), officalTests[test].out.toLowerCase())
-    }
-    done()
   })
 })
